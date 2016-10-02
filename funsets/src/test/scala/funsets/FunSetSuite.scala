@@ -77,6 +77,7 @@ class FunSetSuite extends FunSuite {
     val s1 = singletonSet(1)
     val s2 = singletonSet(2)
     val s3 = singletonSet(3)
+    val s4 = singletonSet(4)
   }
 
   /**
@@ -93,10 +94,6 @@ class FunSetSuite extends FunSuite {
      * to the values "s1" to "s3".
      */
     new TestSets {
-      /**
-       * The string argument of "assert" is a message that is printed in case
-       * the test fails. This helps identifying which assertion failed.
-       */
       assert(contains(s1, 1), "Singleton")
     }
   }
@@ -110,5 +107,63 @@ class FunSetSuite extends FunSuite {
     }
   }
 
+  test("intersect grabs only elements that exist in both sets") {
+    new TestSets {
+      val s = union(s1, s2)
+      val t = union(s1, s3)
+      val i = intersect(s,t)
+      assert(contains(i, 1), "intersect 1")
+      assert(!contains(i, 2), "intersect 2")
+      assert(!contains(i, 3), "intersect 3")
+    }
+  }
 
+  test("diff returns only elements that exist in in the first set that arent in the second") {
+    new TestSets {
+      val s = union(s1, s2)
+      val t = union(s1, s3)
+      val d = diff(s,t)
+      assert(contains(d, 2), "contains 2")
+      assert(!contains(d, 3), "doesnt contain 3")
+   }
+  }
+
+  test("filter selects only elements of a set that accepted by given predicate") {
+    new TestSets {
+      val s = union(s1, s2)
+      val ss = union(s, s4)
+      val d = filter(ss, (x) => x % 2 == 0)
+      assert(contains(d, 2), "contains 1")
+      assert(contains(d, 4), "contains 1")
+      assert(!contains(d, 1), "doesnt contains 1")
+    }
+  }
+  test("iter checks that all elements of a set meet a certain condition") {
+    new TestSets {
+      val s = union(union(s1,s2), union(s3, s4));
+      assert(forall(s, (_ < 10)))
+      assert(!forall(s, (_ % 2 == 0)))
+    }
+  }
+
+  test("exists checks that at least 1 elements of a set meet a certain condition") {
+    new TestSets {
+      val s = union(union(s1,s2), union(s3, s4));
+      assert(exists(s, (_ < 10)))
+      assert(exists(s, (_ == 4)))
+      assert(!exists(s, (_ > 10)))
+    }
+  }
+
+  test("map maps each element by the given function") {
+    new TestSets {
+      val s = union(union(s1,s2), union(s3, s4));
+      val mapped = map(s, (_ * 10));
+      assert(contains(mapped, 10));
+      assert(contains(mapped, 20));
+      assert(contains(mapped, 30));
+      assert(contains(mapped, 40));
+      assert(!contains(mapped, 1));
+    }
+  }
 }
